@@ -2,3 +2,6 @@ requests
 pendulum
 django
 psycopg2
+numpy
+matplotlib
+tqdm
