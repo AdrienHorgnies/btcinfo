@@ -101,7 +101,7 @@ def draw():
     
     print('Plot fee ratios')
     fig_fee_ratios, ax_fee_ratios = plt.subplots()
-    title_fee_ratios = "Histogramme des ratios de récompense sur poids"
+    title_fee_ratios = "Histogramme des ratios de frais sur poids des transactions"
 
     fig_fee_ratios.canvas.manager.set_window_title(title_fee_ratios)
     ax_fee_ratios.set(title=title_fee_ratios, xlabel='Ratio des frais de transactions sur poids (satoshi/WU)', ylabel='Nombre de transactions')
