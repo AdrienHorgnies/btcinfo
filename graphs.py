@@ -41,7 +41,7 @@ def boxplot():
     fig.canvas.manager.set_window_title(title)
     ax.set(title=title, xlabel='Taille de bloc', ylabel='Récompense')
 
-    labels = [f"{e:.3f}" for e in bin_edges]
+    labels = [f"{e:.0f}" for e in bin_edges]
     ax.boxplot(bins, labels=labels, showfliers=False, showmeans=True)
     ax.set_xticklabels(labels, rotation=45, ha='right')
 
