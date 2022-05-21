@@ -3,13 +3,10 @@ import logging
 import os
 from collections import defaultdict
 from multiprocessing import Pool
+from typing import List
 
-import numpy as np
 import pendulum
 from django.core.wsgi import get_wsgi_application
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-from typing import List
 
 from api.btc import get_blocks, get_block, BriefBlock, DetailedBlock
 
@@ -50,6 +47,7 @@ def decrease_counter(day, fun):
     :param fun: The function to create a proxy for.
     :return: A proxy method that behaves such as fun.
     """
+
     def proxy(block: DetailedBlock):
         blocks_counter[day] -= 1
         blocks_counter[day.format("YYYY MM")] -= 1
@@ -99,64 +97,30 @@ def main():
         p2.join()
 
 
-def boxplot():
-    """
-    Draw a boxplot of the fees compared to the block size
-    :return:
-    """
-    print('Getting blocks')
-    blocks = Transaction.objects.values('block').annotate(size=Count('block_id'))
-    sizes = [b['size'] for b in blocks]
-    print('Got blocks')
-
-    bin_edges = np.histogram_bin_edges(sizes, bins='doane')
-    bin_indices = np.digitize(sizes, bin_edges)
-
-    block_id_to_bin_idx = {
-        b['block']: bin_id - 1 for bin_id, b in zip(bin_indices, blocks)
-    }
-
-    print('Getting transactions')
-    txs = Transaction.objects.values('block').annotate(reward=F('fee') * 1.0 / F('weight'))
-    print('Got transactions', txs[0] and '')
-
-    print('Classifying transactions')
-    bins = [[] for _ in range(len(bin_edges))]
-    for tx in tqdm(txs):
-        bin_idx = block_id_to_bin_idx[tx['block']]
-        bins[bin_idx].append(tx['reward'])
-    print('Classified transactions')
-
-    print('Plotting')
-    fig, ax = plt.subplots()
-    title = "Récompense en fonction de la taille de bloc"
-
-    fig.canvas.manager.set_window_title(title)
-    ax.set(title=title, xlabel='Taille de bloc', ylabel='Récompense')
-
-    labels = [f"{e:.3f}" for e in bin_edges]
-    ax.boxplot(bins, labels=labels, showfliers=False, showmeans=True)
-    ax.set_xticklabels(labels, rotation=45, ha='right')
-
-    plt.show()
-
-
 if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
     application = get_wsgi_application()
-    from db.models import Block, Transaction
-    from django.db.models import Count, F
+    from db.models import Block
+    from graphs import boxplot
 
     parser = argparse.ArgumentParser(
-        description="Fetch and store blocks and transactions in the specified date interval")
-    parser.add_argument('start_date', type=lambda s: pendulum.from_format(s, 'DD-MM-YYYY'),
-                        help="date format is DD-MM-YYYY")
-    parser.add_argument('end_date', type=lambda s: pendulum.from_format(s, 'DD-MM-YYYY'),
-                        help="date format is DD-MM-YYYY")
+        description="Fetch and store blocks and transactions in the specified date interval.")
+    subparsers = parser.add_subparsers(dest="command")
+
+    retrieve_parser = subparsers.add_parser("retrieve", help="Retrieve data from the API.")
+    retrieve_parser.add_argument('start_date', type=lambda s: pendulum.from_format(s, 'DD-MM-YYYY'),
+                                 help="date format is DD-MM-YYYY")
+    retrieve_parser.add_argument('end_date', type=lambda s: pendulum.from_format(s, 'DD-MM-YYYY'),
+                                 help="date format is DD-MM-YYYY")
+
+    graph_parser = subparsers.add_parser("draw", help="Draw graphs using saved data.")
+
     args = parser.parse_args()
-
-    PERIOD_START = args.start_date
-    PERIOD_END = args.end_date
-
-    main()
-    boxplot()
+    if args.command == 'retrieve':
+        PERIOD_START = args.start_date
+        PERIOD_END = args.end_date
+        main()
+    elif args.command == 'draw':
+        boxplot()
+    else:
+        raise argparse.ArgumentError(args.command, "Unknown command")
