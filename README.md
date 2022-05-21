@@ -1,7 +1,7 @@
 # BTC info
-Small project to fetch information about blocks and transactions from 'https://blockchain.info'.
+It is a small project to fetch information about blocks and transactions by querying 'https://blockchain.info'.
 
-Fetches information from the API and store them in a local database.
+It fetches information from the API and store it in a local PostgresQL database.
 
 ## Getting Started
 
@@ -19,13 +19,16 @@ Example using Docker :
     
     docker run --name bcinfo_db -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postgres
 
-Make and apply migrations for the database :
+Make and apply the migrations for the database :
 
     ./manage.py makemigrations
     ./manage.py migrate
 
 
-Start the script :
+Retrieve the data :
 
-    ./main.py 01-01-2021 31-01-2021
+    ./main.py retrieve 01-01-2021 31-01-2021
 
+Draw graphs using the data :
+
+    ./main.py draw
