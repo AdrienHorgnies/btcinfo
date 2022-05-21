@@ -16,13 +16,21 @@ def draw():
     :return:
     """
     print('Getting blocks')
-    blocks = Transaction.objects.values('block').annotate(size=Count('block_id'))
-    sizes = [b['size'] for b in blocks]
+    block_counts = Transaction.objects.values('block').annotate(size=Count('block_id'))
+    sizes = [b['size'] for b in block_counts]
     print('Got blocks')
 
     print('Getting transactions')
-    txs = Transaction.objects.values('block').annotate(reward=F('fee') * 1.0 / F('weight'))
+    txs = Transaction.objects.values('block', 'weight').annotate(ratio=F('fee') * 1.0 / F('weight'))
     print('Got transactions', txs[0] and '')
+
+    print('Collecting weights')
+    weights = Block.objects.values('weight')
+    weights = np.array([b['weight'] for b in weights])
+    weights = reject_outliers(weights)
+
+    tx_weights = np.array([t['weight'] for t in txs])
+    tx_weights = reject_outliers(tx_weights)
 
     print('Computing service times')
     selection_times = Block.objects.values_list('time', flat=True).order_by('time')
@@ -31,8 +39,7 @@ def draw():
     service_times = reject_outliers(service_times)
 
     print('Collecting fees')
-    fees_n_weights = Transaction.objects.values('fee', 'weight')
-    fnw_ratios = np.array([fnw['fee'] / fnw['weight'] for fnw in fees_n_weights])
+    fnw_ratios = np.array([t['ratio'] for t in txs])
     fnw_ratios = reject_outliers(fnw_ratios)
 
     print('Classifying transactions by fees')
@@ -40,12 +47,12 @@ def draw():
     bin_indices_congestion = np.digitize(sizes, bin_edges_congestion)
 
     block_id_to_bin_idx_congestion = {
-        b['block']: bin_id - 1 for bin_id, b in zip(bin_indices_congestion, blocks)
+        b['block']: bin_id - 1 for bin_id, b in zip(bin_indices_congestion, block_counts)
     }
     bins_congestion = [[] for _ in range(len(bin_edges_congestion))]
     for tx in tqdm(txs):
         bin_idx = block_id_to_bin_idx_congestion[tx['block']]
-        bins_congestion[bin_idx].append(tx['reward'])
+        bins_congestion[bin_idx].append(tx['ratio'])
     print('Classified transactions')
 
     print('Plot sizes')
@@ -58,6 +65,28 @@ def draw():
     ax_sizes.hist(sizes, bins='auto')
 
     print(f"{np.median(sizes)=}, {np.mean(sizes)=}")
+    
+    print('Plot weights')
+    fig_weights, ax_weights = plt.subplots()
+    title_weights = "Histogramme du poids des blocs"
+
+    fig_weights.canvas.manager.set_window_title(title_weights)
+    ax_weights.set(title=title_weights, xlabel='Poids des blocs (WU)', ylabel='Nombre de blocs')
+
+    ax_weights.hist(weights, bins='auto')
+
+    print(f"{np.median(weights)=}, {np.mean(weights)=}")
+    
+    print('Plot tx_weights')
+    fig_tx_weights, ax_tx_weights = plt.subplots()
+    title_tx_weights = "Histogramme du poids des transactions"
+
+    fig_tx_weights.canvas.manager.set_window_title(title_tx_weights)
+    ax_tx_weights.set(title=title_tx_weights, xlabel='Poids des transactions (WU)', ylabel='Nombre de transactions')
+
+    ax_tx_weights.hist(tx_weights, bins='auto')
+
+    print(f"{np.median(tx_weights)=}, {np.mean(tx_weights)=}")
     
     print('Plot service time')
     fig_service, ax_service = plt.subplots()
