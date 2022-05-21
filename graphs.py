@@ -56,6 +56,8 @@ def draw():
     ax_sizes.set(title=title_sizes, xlabel='Nombre de transactions par bloc', ylabel='Nombre de blocs')
 
     ax_sizes.hist(sizes, bins='auto')
+
+    print(f"{np.median(sizes)=}, {np.mean(sizes)=}")
     
     print('Plot service time')
     fig_service, ax_service = plt.subplots()
@@ -65,6 +67,8 @@ def draw():
     ax_service.set(title=title_service, xlabel='Temps entre les blocs (secondes)', ylabel='Nombre de blocs')
 
     ax_service.hist(service_times, bins='auto')
+
+    print(f"{np.median(service_times)=}, {np.mean(service_times)=}")
     
     print('Plot fee ratios')
     fig_fee_ratios, ax_fee_ratios = plt.subplots()
@@ -74,6 +78,8 @@ def draw():
     ax_fee_ratios.set(title=title_fee_ratios, xlabel='Ratio des frais de transactions sur poids (satoshi/WU)', ylabel='Nombre de transactions')
 
     ax_fee_ratios.hist(fnw_ratios, bins='auto')
+
+    print(f"{np.median(fnw_ratios)=}, {np.mean(fnw_ratios)=}")
 
     print('Plot Congestion')
     fig_congestion, ax_congestion = plt.subplots()
