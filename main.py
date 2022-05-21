@@ -9,20 +9,23 @@ import pendulum
 from django.core.wsgi import get_wsgi_application
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from typing import List
 
-from api.btc import get_blocks, get_block
+from api.btc import get_blocks, get_block, BriefBlock, DetailedBlock
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
-PERIOD_START = pendulum.datetime(2021, 9, 15).naive()
-PERIOD_END = pendulum.datetime(2021, 11, 14).naive()
 blocks_counter = defaultdict(int)
 
 
 def increase_counter(day, fun):
     """
     Count number of blocks to fetch by period (day, month, year, total)
+
+    :param day:
+    :param fun:
+    :return:
     """
 
     def proxy(blocks):
@@ -40,7 +43,14 @@ def increase_counter(day, fun):
 
 
 def decrease_counter(day, fun):
-    def proxy(block):
+    """
+    Creates a proxy method around fun, and decreases counters by one when called.
+
+    :param day: The day the block has been generated
+    :param fun: The function to create a proxy for.
+    :return: A proxy method that behaves such as fun.
+    """
+    def proxy(block: DetailedBlock):
         blocks_counter[day] -= 1
         blocks_counter[day.format("YYYY MM")] -= 1
         blocks_counter[day.year] -= 1
@@ -55,8 +65,16 @@ def decrease_counter(day, fun):
 
 
 def main():
+    """
+    Retrieves blocks and transactions from the API.
+    """
     with Pool(2) as p1, Pool(16) as p2:
-        def get_details_and_save(blocks):
+        def get_details_and_save(blocks: List[BriefBlock]):
+            """
+            Retrieves the details of the listed blocks and save them in the database.
+
+            :param blocks: The blocks to get details for
+            """
             for block in blocks:
                 if Block.objects.filter(height=block['height']):
                     continue
@@ -66,7 +84,7 @@ def main():
 
         for day in PERIOD_END - PERIOD_START:
             log.info(f'Considering {day.to_formatted_date_string()}')
-            # testing if there are blocks around 12 hours before day, to avoid overlapping days from API
+            # testing if there are blocks around 12 hours before day, to avoid fetching the same day twice
             if Block.objects.filter(time__gt=day.subtract(hours=12), time__lt=day.subtract(hours=11)):
                 log.info(f'skipping {day.to_formatted_date_string()}')
                 continue

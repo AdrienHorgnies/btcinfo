@@ -39,7 +39,7 @@ class Transaction(TypedDict):
     weight: int
     fee: int
     relayed_by: str  # IP of node that sent the transaction
-    lock_time: int  # UNIX timestamp ? Doesn't look like it
+    lock_time: int  # UNIX timestamp or block height, unused.
     tx_index: int
     double_spend: bool
     time: str
@@ -51,8 +51,8 @@ class Transaction(TypedDict):
 
 class BriefBlock(TypedDict):
     hash: str  # 64 char
-    height: int  # offset compared to genesis block ?
-    time: int  # UNIX timestamp
+    height: int  # offset compared to genesis block
+    time: int  # UNIX timestamp, start of mining
     block_index: int  # same as block height ?
 
 
