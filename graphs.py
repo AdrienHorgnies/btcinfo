@@ -50,7 +50,7 @@ def draw():
 
     print('Plot sizes')
     fig_sizes, ax_sizes = plt.subplots()
-    title_sizes = "Distribution des tailles des blocs"
+    title_sizes = "Histogramme des tailles des blocs"
 
     fig_sizes.canvas.manager.set_window_title(title_sizes)
     ax_sizes.set(title=title_sizes, xlabel='Nombre de transactions par bloc', ylabel='Nombre de blocs')
@@ -59,7 +59,7 @@ def draw():
     
     print('Plot service time')
     fig_service, ax_service = plt.subplots()
-    title_service = "Distribution du temps inter-bloc"
+    title_service = "Histogramme du temps inter-bloc"
 
     fig_service.canvas.manager.set_window_title(title_service)
     ax_service.set(title=title_service, xlabel='Temps entre les blocs (secondes)', ylabel='Nombre de blocs')
@@ -68,7 +68,7 @@ def draw():
     
     print('Plot fee ratios')
     fig_fee_ratios, ax_fee_ratios = plt.subplots()
-    title_fee_ratios = "Distribution des ratios de récompense sur poids"
+    title_fee_ratios = "Histogramme des ratios de récompense sur poids"
 
     fig_fee_ratios.canvas.manager.set_window_title(title_fee_ratios)
     ax_fee_ratios.set(title=title_fee_ratios, xlabel='Ratio des frais de transactions sur poids (satoshi/WU)', ylabel='Nombre de transactions')
@@ -77,7 +77,7 @@ def draw():
 
     print('Plot Congestion')
     fig_congestion, ax_congestion = plt.subplots()
-    title_congestion = "Récompense en fonction de la taille de bloc"
+    title_congestion = "Ratio de récompense sur poids des transactions en fonction de la taille de bloc"
 
     fig_congestion.canvas.manager.set_window_title(title_congestion)
     ax_congestion.set(title=title_congestion, xlabel='Taille de bloc', ylabel='Récompense')
