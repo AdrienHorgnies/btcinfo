@@ -101,7 +101,7 @@ if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
     application = get_wsgi_application()
     from db.models import Block
-    from graphs import boxplot
+    from graphs import draw
 
     parser = argparse.ArgumentParser(
         description="Fetch and store blocks and transactions in the specified date interval.")
@@ -119,6 +119,6 @@ if __name__ == '__main__':
     if args.command == 'retrieve':
         main(args.start_date, args.end_date)
     elif args.command == 'draw':
-        boxplot()
+        draw()
     else:
         raise argparse.ArgumentError(args.command, "Unknown command")
