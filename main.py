@@ -62,7 +62,7 @@ def decrease_counter(day, fun):
     return proxy
 
 
-def main():
+def main(start_date, end_date):
     """
     Retrieves blocks and transactions from the API.
     """
@@ -80,7 +80,7 @@ def main():
                                (block['hash'],),
                                callback=decrease_counter(block['day'], Block.save_from_api))
 
-        for day in PERIOD_END - PERIOD_START:
+        for day in end_date - start_date:
             log.info(f'Considering {day.to_formatted_date_string()}')
             # testing if there are blocks around 12 hours before day, to avoid fetching the same day twice
             if Block.objects.filter(time__gt=day.subtract(hours=12), time__lt=day.subtract(hours=11)):
@@ -117,9 +117,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.command == 'retrieve':
-        PERIOD_START = args.start_date
-        PERIOD_END = args.end_date
-        main()
+        main(args.start_date, args.end_date)
     elif args.command == 'draw':
         boxplot()
     else:
