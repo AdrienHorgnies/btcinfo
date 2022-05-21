@@ -80,7 +80,7 @@ def draw():
     title_congestion = "Ratio de récompense sur poids des transactions en fonction de la taille de bloc"
 
     fig_congestion.canvas.manager.set_window_title(title_congestion)
-    ax_congestion.set(title=title_congestion, xlabel='Taille de bloc', ylabel='Récompense')
+    ax_congestion.set(title=title_congestion, xlabel='Nombre de transactions par bloc', ylabel='Ratio de récompense sur poids (satoshi/WU)')
 
     labels_congestion = [f"{e:.0f}" for e in bin_edges_congestion]
     ax_congestion.boxplot(bins_congestion, labels=labels_congestion, showfliers=False, showmeans=True)
