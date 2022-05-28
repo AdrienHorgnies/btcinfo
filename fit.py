@@ -1,10 +1,17 @@
 import numpy as np
+import numpy as np
 from scipy.stats import kstest, expon
 
 from db.models import Block
 
 
 def test():
+    """
+    Make statistic test of the inter-block time against an exponential law of same rate.
+    1. density histogram VS PDF
+    2. QQ-plot
+    3. Kolmogorov-Smirnov
+    """
     selection_times = Block.objects.values_list('time', flat=True).order_by('time')
     selection_times = np.array([t.timestamp() for t in selection_times])
     service_times = selection_times[1:] - selection_times[:-1]
