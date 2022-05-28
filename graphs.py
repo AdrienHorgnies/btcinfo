@@ -19,11 +19,9 @@ def draw():
     block_counts = Transaction.objects.values('block').annotate(size=Count('block_id'))
     sizes = [b['size'] for b in block_counts]
     std_sizes = np.std(sizes)
-    print('Got blocks')
 
     print('Getting transactions')
     txs = Transaction.objects.values('block', 'weight').annotate(ratio=F('fee') * 1.0 / F('weight'))
-    print('Got transactions', txs[0] and '')
 
     print('Collecting weights')
     weights = Block.objects.values('weight')
