@@ -102,6 +102,7 @@ if __name__ == '__main__':
     application = get_wsgi_application()
     from db.models import Block
     from graphs import draw
+    from fit import test
 
     parser = argparse.ArgumentParser(
         description="Fetch and store blocks and transactions in the specified date interval.")
@@ -115,10 +116,14 @@ if __name__ == '__main__':
 
     graph_parser = subparsers.add_parser("draw", help="Draw graphs using saved data.")
 
+    fit_test_parser = subparsers.add_parser("test", help="Make a fit test of the data.")
+
     args = parser.parse_args()
     if args.command == 'retrieve':
         main(args.start_date, args.end_date)
     elif args.command == 'draw':
         draw()
+    elif args.command == 'test':
+        test()
     else:
         raise argparse.ArgumentError(args.command, "Unknown command")
