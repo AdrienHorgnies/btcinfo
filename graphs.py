@@ -7,7 +7,7 @@ from db.models import Transaction, Block
 
 
 def reject_outliers(data, m=3):
-    return data[abs(data - np.median(data)) < m * np.std(data)]
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 
 def draw():
