@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.stats import kstest, expon
-import statsmodels.api as sm
 
 from db.models import Block
 
@@ -19,10 +18,17 @@ def test():
 
     ax_pdf.set(xlabel='Temps inter-bloc (secondes)', ylabel='Probabilité')
     ax_pdf.hist(service_times, label='Mesures', density=True, bins='auto')
-    ax_pdf.plot(x, y, label=f"exp({1/service_times.mean():.3E})")
+    ax_pdf.plot(x, y, label=f"exp({1 / service_times.mean():.3E})")
     ax_pdf.legend(loc='best', frameon=False)
 
-    sm.qqplot(service_times, exp, line='45', ax=ax_qq)
+    q_x = np.arange(1, 101)
+    q_m = np.percentile(service_times, q_x)
+    q_t = np.percentile(exp.rvs(10 ** 7), q_x)
+
+    ax_qq.scatter(q_t, q_m, label='Mesures', s=10)
+    ax_qq.plot(q_t, q_t, label='Référence', color='orange')
+    ax_qq.set(xlabel="Quantiles théoriques", ylabel="Quantiles des mesures", yscale='log', xscale='log')
+    ax_qq.legend(loc='best', frameon=False)
 
     stat_test, p_value = kstest(service_times, exp.cdf, N=100, mode='exact', alternative='two-sided')
     print(f"Sample size : {len(service_times):,}")
