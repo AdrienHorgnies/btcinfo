@@ -44,10 +44,14 @@ def draw():
     weights = Block.objects.values('weight')
     weights = np.array([b['weight'] for b in weights])
     std_weights = np.std(weights)
+    print(f"{np.median(weights)=}, {np.mean(weights)=}, {std_weights=}")
+    print(f"{deciles(weights)=}")
     weights = reject_outliers(weights)
 
     tx_weights = np.array([t['weight'] for t in txs])
     std_tx_weights = np.std(tx_weights)
+    print(f"{np.median(tx_weights)=}, {np.mean(tx_weights)=}, {std_tx_weights=}")
+    print(f"{deciles(tx_weights)=}")
     tx_weights = reject_outliers(tx_weights)
 
     print('Computing service times')
@@ -55,11 +59,15 @@ def draw():
     selection_times = np.array([t.timestamp() for t in selection_times])
     service_times = selection_times[1:] - selection_times[:-1]
     std_service_times = np.std(service_times)
+    print(f"{np.median(service_times)=}, {np.mean(service_times)=}, {std_service_times=}")
+    print(f"{deciles(service_times)=}")
     service_times = reject_outliers(service_times)
 
     print('Collecting fees')
     fnw_ratios = np.array([t['ratio'] for t in txs])
     std_fnw_ratios = np.std(fnw_ratios)
+    print(f"{np.median(fnw_ratios)=}, {np.mean(fnw_ratios)=}, {std_fnw_ratios=}")
+    print(f"{deciles(fnw_ratios)=}")
     fnw_ratios = reject_outliers(fnw_ratios)
 
     print('Classifying transactions by fees')
@@ -96,9 +104,6 @@ def draw():
 
     ax_weights.hist(weights, bins='auto')
 
-    print(f"{np.median(weights)=}, {np.mean(weights)=}, {std_weights=}")
-    print(f"{deciles(weights)=}")
-
     print('Plot tx_weights')
     fig_tx_weights, ax_tx_weights = plt.subplots()
     title_tx_weights = "Histogramme du poids des transactions"
@@ -107,9 +112,6 @@ def draw():
     ax_tx_weights.set(title=title_tx_weights, xlabel='Poids des transactions (WU)', ylabel='Nombre de transactions')
 
     ax_tx_weights.hist(tx_weights, bins='auto')
-
-    print(f"{np.median(tx_weights)=}, {np.mean(tx_weights)=}, {std_tx_weights=}")
-    print(f"{deciles(tx_weights)=}")
 
     print('Plot service time')
     fig_service, ax_service = plt.subplots()
@@ -120,9 +122,6 @@ def draw():
 
     ax_service.hist(service_times, bins='auto')
 
-    print(f"{np.median(service_times)=}, {np.mean(service_times)=}, {std_service_times=}")
-    print(f"{deciles(service_times)=}")
-
     print('Plot fee ratios')
     fig_fee_ratios, ax_fee_ratios = plt.subplots()
     title_fee_ratios = "Histogramme des ratios de frais sur poids des transactions"
@@ -132,9 +131,6 @@ def draw():
                       ylabel='Nombre de transactions')
 
     ax_fee_ratios.hist(fnw_ratios, bins='auto')
-
-    print(f"{np.median(fnw_ratios)=}, {np.mean(fnw_ratios)=}, {std_fnw_ratios=}")
-    print(f"{deciles(fnw_ratios)=}")
 
     print('Plot Congestion')
     fig_congestion, ax_congestion = plt.subplots()
