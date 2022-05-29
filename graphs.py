@@ -6,7 +6,24 @@ from tqdm import tqdm
 from db.models import Transaction, Block
 
 
+def deciles(data):
+    """
+    Return the list of deciles of the data
+
+    :param data: the data to compute the deciles of
+    :return: the deciles
+    """
+    return np.percentile(data, np.arange(10, 100, 10))
+
+
 def reject_outliers(data, m=3):
+    """
+    Creates a copy of the data without outliers.
+
+    :param data: the data to copy
+    :param m: number of standard deviation data can deviate from the mean before being rejected
+    :return: a copy without outliers
+    """
     return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 
@@ -68,7 +85,8 @@ def draw():
     ax_sizes.hist(sizes, bins='auto')
 
     print(f"{np.median(sizes)=}, {np.mean(sizes)=}, {std_sizes=}")
-    
+    print(f"{deciles(sizes)=}")
+
     print('Plot weights')
     fig_weights, ax_weights = plt.subplots()
     title_weights = "Histogramme du poids des blocs"
@@ -79,7 +97,8 @@ def draw():
     ax_weights.hist(weights, bins='auto')
 
     print(f"{np.median(weights)=}, {np.mean(weights)=}, {std_weights=}")
-    
+    print(f"{deciles(weights)=}")
+
     print('Plot tx_weights')
     fig_tx_weights, ax_tx_weights = plt.subplots()
     title_tx_weights = "Histogramme du poids des transactions"
@@ -90,7 +109,8 @@ def draw():
     ax_tx_weights.hist(tx_weights, bins='auto')
 
     print(f"{np.median(tx_weights)=}, {np.mean(tx_weights)=}, {std_tx_weights=}")
-    
+    print(f"{deciles(tx_weights)=}")
+
     print('Plot service time')
     fig_service, ax_service = plt.subplots()
     title_service = "Histogramme du temps inter-bloc"
@@ -101,24 +121,28 @@ def draw():
     ax_service.hist(service_times, bins='auto')
 
     print(f"{np.median(service_times)=}, {np.mean(service_times)=}, {std_service_times=}")
-    
+    print(f"{deciles(service_times)=}")
+
     print('Plot fee ratios')
     fig_fee_ratios, ax_fee_ratios = plt.subplots()
     title_fee_ratios = "Histogramme des ratios de frais sur poids des transactions"
 
     fig_fee_ratios.canvas.manager.set_window_title(title_fee_ratios)
-    ax_fee_ratios.set(title=title_fee_ratios, xlabel='Ratio des frais de transactions sur poids (satoshi/WU)', ylabel='Nombre de transactions')
+    ax_fee_ratios.set(title=title_fee_ratios, xlabel='Ratio des frais de transactions sur poids (satoshi/WU)',
+                      ylabel='Nombre de transactions')
 
     ax_fee_ratios.hist(fnw_ratios, bins='auto')
 
     print(f"{np.median(fnw_ratios)=}, {np.mean(fnw_ratios)=}, {std_fnw_ratios=}")
+    print(f"{deciles(fnw_ratios)=}")
 
     print('Plot Congestion')
     fig_congestion, ax_congestion = plt.subplots()
     title_congestion = "Ratio des frais sur poids des transactions en fonction de la taille de bloc"
 
     fig_congestion.canvas.manager.set_window_title(title_congestion)
-    ax_congestion.set(title=title_congestion, xlabel='Nombre de transactions par bloc', ylabel='Ratio de frais sur poids (satoshi/WU)')
+    ax_congestion.set(title=title_congestion, xlabel='Nombre de transactions par bloc',
+                      ylabel='Ratio de frais sur poids (satoshi/WU)')
 
     labels_congestion = [f"{e:.0f}" for e in bin_edges_congestion]
     ax_congestion.boxplot(bins_congestion, labels=labels_congestion, showfliers=False, showmeans=True)
